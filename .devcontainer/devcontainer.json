@@ -1,17 +1,17 @@
 {
-  "name": "hitokoto（Docker が使える環境）",
+  "name": "hitokoto（リハーサル用）",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "moby": false
-    }
+    },
+    "ghcr.io/devcontainers/features/sshd:1": {}
   },
   "hostRequirements": {
     "cpus": 2
   },
-  "forwardPorts": [8000, 8080],
-  "portsAttributes": {
-    "8000": { "label": "ひとこと掲示板" },
-    "8080": { "label": "Web サーバー（nginx）" }
-  }
+  "forwardPorts": [
+    8000,
+    8080
+  ]
 }
