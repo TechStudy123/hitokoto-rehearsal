@@ -1,0 +1,119 @@
+##### h5 2026-10-01T06:40:26+00:00
+$ docker network create hitokoto-net
+b05c716f93503b8f85d9f72028cac5ad4aedc19c336358dac64b33006ac13baf
+[rc=0 0s]
+$ docker run -d --name db --network hitokoto-net -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=renshu-pass postgres:17
+Unable to find image 'postgres:17' locally
+17: Pulling from library/postgres
+0725a8be915e: Pulling fs layer
+71f55f60a786: Pulling fs layer
+752819419f50: Pulling fs layer
+73872941ba23: Pulling fs layer
+498b9ff7d682: Pulling fs layer
+564dc3c4a6f9: Pulling fs layer
+bbe7b3469b20: Pulling fs layer
+8b51b9245051: Pulling fs layer
+bed9376b51dc: Pulling fs layer
+755a851127eb: Pulling fs layer
+3feaebf93d15: Pulling fs layer
+2f9b6cf2e417: Pulling fs layer
+50e228e2fe6d: Pulling fs layer
+8b51b9245051: Download complete
+73872941ba23: Download complete
+498b9ff7d682: Download complete
+0725a8be915e: Download complete
+0725a8be915e: Pull complete
+564dc3c4a6f9: Download complete
+3feaebf93d15: Download complete
+752819419f50: Download complete
+bed9376b51dc: Download complete
+755a851127eb: Download complete
+2f9b6cf2e417: Download complete
+50e228e2fe6d: Download complete
+71f55f60a786: Download complete
+8149cae2e315: Download complete
+090191b9c428: Download complete
+564dc3c4a6f9: Pull complete
+71f55f60a786: Pull complete
+752819419f50: Pull complete
+bbe7b3469b20: Download complete
+8b51b9245051: Pull complete
+498b9ff7d682: Pull complete
+755a851127eb: Pull complete
+73872941ba23: Pull complete
+3feaebf93d15: Pull complete
+bed9376b51dc: Pull complete
+2f9b6cf2e417: Pull complete
+50e228e2fe6d: Pull complete
+bbe7b3469b20: Pull complete
+Digest: sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f
+Status: Downloaded newer image for postgres:17
+e371ac0d45384cc4b2435bbef853545fb35ae7996efaa1196384e98407877502
+[rc=0 6s]
+$ docker run -d --name app --network hitokoto-net -p 8000:8000 -e DB_HOST=db -e DB_PASSWORD=renshu-pass hitokoto:1.0
+b09f3c93984b16560fa078c735dae054e3723477f89044db587a3086c6804156
+[rc=0 0s]
+$ curl -s -o /dev/null -w '%{http_code}\n' --data-urlencode 'text=はじめての書き込み' localhost:8000/
+303
+[rc=0 0s]
+<p class="lead">みんなのひとことを書き込もう（Docker で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="ひとこと（140字まで）" required>
+<li>はじめての書き込み<span class="time">10/01 15:40</span></li>
+<footer>hitokoto 1.0</footer>
+$ docker rm -f db
+db
+[rc=0 0s]
+$ docker run -d --name db --network hitokoto-net -v db-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=renshu-pass postgres:17
+f1dcf7db468a0bdb405e198fdebe8fbf5d1089034cc9db741b64a1e1c106e04a
+[rc=0 0s]
+$ docker logs db 2>&1 | head -3
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+[rc=0 0s]
+<p class="lead">みんなのひとことを書き込もう（Docker で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="ひとこと（140字まで）" required>
+<li>はじめての書き込み<span class="time">10/01 15:40</span></li>
+<footer>hitokoto 1.0</footer>
+$ docker rm -f app
+app
+[rc=0 0s]
+$ docker run -d --name app --network hitokoto-net -p 8000:8000 -e DB_HOST=localhost -e DB_PASSWORD=renshu-pass hitokoto:1.0
+18e5def49b95ae6d3767b86bcb4f714684c804ce9159dac6bd2da9c692d45087
+[rc=0 1s]
+<p class="banner error">データベース（localhost）につながりません。ログ（docker logs）を見てください。</p>
+<footer>hitokoto 1.0</footer>
+$ docker logs app 2>&1 | grep -E "^sqlalchemy|ERROR"
+ERROR:    データベース localhost につながりません
+sqlalchemy.exc.OperationalError: (psycopg.OperationalError) connection failed: connection to server at "127.0.0.1", port 5432 failed: Connection refused
+ERROR:    データベース localhost につながりません
+sqlalchemy.exc.OperationalError: (psycopg.OperationalError) connection failed: connection to server at "127.0.0.1", port 5432 failed: Connection refused
+[rc=0 0s]
+$ docker ps --format "{{.Names}} {{.Status}} {{.Ports}}"
+app Up 4 seconds 0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+db Up 10 seconds 5432/tcp
+[rc=0 0s]
+$ docker rm -f app
+app
+[rc=0 0s]
+$ docker run -d --name app --network hitokoto-net -p 8000:8000 -e DB_HOST=db -e DB_PASSWORD=renshu-pass -v ./templates:/app/templates hitokoto:1.0
+8a05b1b2cb1b7c2669e5bbf6d95fec532a99ef7c55df31c824b0e814b9049e9b
+[rc=0 0s]
+<p class="lead">みんなのひとことを書き込もう（Docker で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="今日のひとこと（140字まで）" required>
+<li>はじめての書き込み<span class="time">10/01 15:40</span></li>
+<footer>hitokoto 1.0</footer>
+$ docker rm -f app db
+app
+db
+[rc=0 0s]
+$ docker network rm hitokoto-net
+hitokoto-net
+[rc=0 0s]
+$ docker volume rm db-data
+db-data
+[rc=0 0s]
+##### end h5 2026-10-01T06:40:59+00:00

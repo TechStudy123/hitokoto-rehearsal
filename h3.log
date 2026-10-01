@@ -1,0 +1,98 @@
+##### h3 2026-10-01T06:38:13+00:00
+$ docker run -d --name web -p 8080:80 nginx:1.30
+Unable to find image 'nginx:1.30' locally
+1.30: Pulling from library/nginx
+757049f14b94: Pulling fs layer
+3a55ec62cf16: Pulling fs layer
+6b37362b3da7: Pulling fs layer
+b9614c6dbd86: Pulling fs layer
+2aa35770407f: Pulling fs layer
+f3cb4f951034: Pulling fs layer
+af529266d394: Pulling fs layer
+3a55ec62cf16: Download complete
+757049f14b94: Download complete
+2aa35770407f: Download complete
+6b37362b3da7: Download complete
+b9614c6dbd86: Download complete
+f3cb4f951034: Download complete
+af529266d394: Download complete
+02ac47b2a7a6: Download complete
+d6363fd2ac35: Download complete
+6b37362b3da7: Pull complete
+3a55ec62cf16: Pull complete
+757049f14b94: Pull complete
+2aa35770407f: Pull complete
+b9614c6dbd86: Pull complete
+f3cb4f951034: Pull complete
+af529266d394: Pull complete
+Digest: sha256:b972f831f200b19ef0767938224f9711e74cd783718738cd7405d5cabf75c442
+Status: Downloaded newer image for nginx:1.30
+2f2414f8f0559aab348f529d62ab579a8919a8bb31901a4c0f8bd54e36dff134
+[rc=0 4s]
+<title>Welcome to nginx!</title>
+<h1>Welcome to nginx!</h1>
+$ docker ps
+CONTAINER ID   IMAGE        COMMAND                  CREATED         STATUS         PORTS                                     NAMES
+2f2414f8f055   nginx:1.30   "/docker-entrypoint.…"   3 seconds ago   Up 2 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   web
+[rc=0 0s]
+$ docker logs web 2>&1 | tail -3
+2026/10/01 06:38:17 [notice] 1#1: start worker process 31
+2026/10/01 06:38:17 [notice] 1#1: start worker process 32
+172.18.0.1 - - [01/Oct/2026:06:38:19 +0000] "GET / HTTP/1.1" 200 896 "-" "curl/8.5.0" "-"
+[rc=0 0s]
+$ docker exec web sh -c "echo '<h1>こんにちは</h1>' > /usr/share/nginx/html/index.html"
+[rc=0 0s]
+<h1>こんにちは</h1>
+$ docker rm -f web
+web
+[rc=0 0s]
+$ docker run -d --name web -p 8080:80 nginx:1.30
+0a245826e0a73dfed234fdf71be6cbcf968e6bebb4f78316703476a3703820cc
+[rc=0 0s]
+<title>Welcome to nginx!</title>
+<h1>Welcome to nginx!</h1>
+$ docker run -d --name web2 -p 8080:80 nginx:1.30
+e6b93bfe816e3eaf5f2c9347d545890339b8412511967b86409e999619f942e9
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint web2 (e49ef7c4f9340ecfc17124c2b19789fa8e561b4fb6d8b34762529f359c5ef0b6): Bind for 0.0.0.0:8080 failed: port is already allocated
+
+Run 'docker run --help' for more information
+[rc=125 0s]
+$ docker ps -a --format "{{.Names}} {{.Status}}"
+web2 Created
+web Up 2 seconds
+silly_elbakyan Exited (0) 9 seconds ago
+[rc=0 0s]
+$ docker rm web2
+web2
+[rc=0 0s]
+$ docker run --rm python:3.14-slim python -c 'print(1+1)'
+Unable to find image 'python:3.14-slim' locally
+3.14-slim: Pulling from library/python
+ad232412d02e: Pulling fs layer
+5c21337b2448: Pulling fs layer
+8def98961a31: Pulling fs layer
+ad232412d02e: Download complete
+5c21337b2448: Download complete
+8def98961a31: Download complete
+a3c2a12dac9d: Download complete
+114d09f25449: Download complete
+5c21337b2448: Pull complete
+ad232412d02e: Pull complete
+8def98961a31: Pull complete
+Digest: sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
+Status: Downloaded newer image for python:3.14-slim
+2
+[rc=0 2s]
+$ docker run --rm -e GREETING=こんにちは python:3.14-slim python -c "import os; print(os.environ['GREETING'])"
+こんにちは
+[rc=0 0s]
+$ docker rm -f web
+web
+[rc=0 0s]
+$ docker image ls
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+hello-world:latest   5e2309035332       25.9kB         9.49kB   U    
+nginx:1.30           b972f831f200        241MB           66MB        
+python:3.14-slim     51dafde81dbd        180MB         45.7MB        
+[rc=0 0s]
+##### end h3 2026-10-01T06:38:24+00:00

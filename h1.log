@@ -1,0 +1,105 @@
+##### h1 2026-10-01T06:38:11+00:00
+$ docker version
+Client: Docker Engine - Community
+ Version:           29.8.2
+ API version:       1.56
+ Go version:        go1.26.8
+ Git commit:        7fc2dff
+ Built:             Wed Sep 30 19:32:28 2026
+ OS/Arch:           linux/amd64
+ Context:           default
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          29.8.2
+  API version:      1.56 (minimum version 1.40)
+  Go version:       go1.26.8
+  Git commit:       8af9fe3
+  Built:            Wed Sep 30 19:32:28 2026
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v2.3.6
+  GitCommit:        ee2735368117d2eb259779949d5e75cdafec9761
+ runc:
+  Version:          1.5.1
+  GitCommit:        v1.5.1-0-g8f2685a4
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+[rc=0 0s]
+$ docker compose version
+Docker Compose version v5.5.1
+[rc=0 0s]
+$ ls -la /usr/libexec/docker/cli-plugins /usr/local/lib/docker/cli-plugins 2>&1; which docker-compose; dpkg -l | grep -E "docker-(ce|compose|buildx)" 
+ls: cannot access '/usr/local/lib/docker/cli-plugins': No such file or directory
+/usr/libexec/docker/cli-plugins:
+total 95852
+drwxrwsr-x 2 1000 docker     4096 Oct  1 06:38 .
+drwxrwsr-x 3 1000 docker     4096 Oct  1 06:38 ..
+-rwxrwxr-x 1 1000 docker 65806498 Sep 30 17:48 docker-buildx
+-rwxrwxr-x 1 1000 docker 32333754 Sep  3 16:03 docker-compose
+hi  docker-ce                     5:29.8.2-1~ubuntu.24.04~noble     amd64        Docker: the open-source application container engine
+hi  docker-ce-cli                 5:29.8.2-1~ubuntu.24.04~noble     amd64        Docker CLI: the open-source application container engine
+ii  docker-compose-plugin         5.5.1-1~ubuntu.24.04~noble        amd64        Docker Compose (V2) plugin for the Docker CLI.
+[rc=0 0s]
+$ command -v python3 perl
+/usr/bin/perl
+[rc=0 0s]
+$ docker buildx version
+github.com/docker/buildx v0.37.2 2d379c0c3f22da0d2759d132a0ec81ca949098f0
+[rc=0 0s]
+$ docker info | grep -E "Server Version|Storage Driver|driver-type|Cgroup|Operating System|Total Memory|CPUs"
+ Server Version: 29.8.2
+ Storage Driver: overlayfs
+  driver-type: io.containerd.snapshotter.v1
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Operating System: Ubuntu 24.04.3 LTS (containerized)
+ CPUs: 4
+ Total Memory: 15.61GiB
+[rc=0 0s]
+$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pulling fs layer
+4f55086f7dd0: Download complete
+4f55086f7dd0: Pull complete
+d5e71e642bf5: Download complete
+Digest: sha256:5e23090353324d887c48ad5e5c56d294eab81588df9605b07d1afe895f9cc8f8
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+[rc=0 2s]
+$ echo wrong-password | docker login -u techstudy123 --password-stdin
+Error response from daemon: Get "https://registry-1.docker.io/v2/": unauthorized: incorrect username or password
+[rc=1 0s]
+$ printenv DH_TOKEN | docker login -u techstudy123 --password-stdin
+
+WARNING! Your credentials are stored unencrypted in '/home/vscode/.docker/config.json'.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/go/credential-store/
+
+Login Succeeded
+[rc=0 0s]
+##### end h1 2026-10-01T06:38:13+00:00

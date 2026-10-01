@@ -1,0 +1,404 @@
+##### h6 2026-10-01T06:40:59+00:00
+$ docker compose config -q
+[rc=0 1s]
+$ docker compose up -d
+ Image hitokoto-app Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 478B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 207B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.14-slim
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 74B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 11.10kB done
+#5 DONE 0.0s
+
+#6 [1/5] FROM docker.io/library/python:3.14-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
+#6 resolve docker.io/library/python:3.14-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d done
+#6 DONE 0.0s
+
+#7 [3/5] COPY requirements.txt .
+#7 CACHED
+
+#8 [2/5] WORKDIR /app
+#8 CACHED
+
+#9 [4/5] RUN pip install -r requirements.txt
+#9 CACHED
+
+#10 [5/5] COPY . .
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers 0.0s done
+#11 exporting manifest sha256:a1b1af726e82ac49593eae94d9bad715ed308de9650cbfa6cfe713fdbaed904e done
+#11 exporting config sha256:8d2d18b11b6c840a1dbd3a15d8361509f232f1ed2c1dd7712b2cc7f19a0a7b3a done
+#11 exporting attestation manifest sha256:dbe53f73938607b0cfda13deb2fc13ad199e2a9760aca4980a318e9793c4487c done
+#11 exporting manifest list sha256:7d167a2e8bb1fee6ce5978f048a47aeb1389a3487d7f4240ad8ed37015f70dae done
+#11 naming to docker.io/library/hitokoto-app:latest done
+#11 unpacking to docker.io/library/hitokoto-app:latest 0.1s done
+#11 DONE 0.1s
+
+#12 resolving provenance for metadata file
+#12 DONE 0.0s
+ Image hitokoto-app Built 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Creating 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Created 
+ Volume hitokoto_db-data Created 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-db-1 Waiting 
+ Container hitokoto-db-1 Healthy 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 3s]
+$ docker compose ps
+NAME             IMAGE          COMMAND                  SERVICE   CREATED         STATUS                   PORTS
+hitokoto-app-1   hitokoto-app   "fastapi run main.py…"   app       3 seconds ago   Up Less than a second    0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+hitokoto-db-1    postgres:17    "docker-entrypoint.s…"   db        3 seconds ago   Up 2 seconds (healthy)   5432/tcp
+[rc=0 0s]
+$ curl -s -o /dev/null --data-urlencode 'text=Compose から' localhost:8000/
+[rc=0 0s]
+<p class="lead">みんなのひとことを書き込もう（Docker で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="今日のひとこと（140字まで）" required>
+<li>Compose から<span class="time">10/01 15:41</span></li>
+<footer>hitokoto 1.0</footer>
+$ grep -c healthcheck compose.yaml
+0
+[rc=1 0s]
+$ docker compose down
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+[rc=0 1s]
+$ docker compose up -d
+ Network hitokoto_default Creating 
+ Network hitokoto_default Creating 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-db-1 Waiting 
+ Container hitokoto-db-1 Error dependency db failed to start
+dependency failed to start: container hitokoto-db-1 has no healthcheck configured
+[rc=1 1s]
+$ grep -A1 depends_on compose.yaml
+    depends_on:
+      - db
+[rc=0 0s]
+$ docker compose down -v
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Volume hitokoto_db-data Removing 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+ Volume hitokoto_db-data Removed 
+[rc=0 0s]
+$ docker compose up -d
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Creating 
+ Network hitokoto_default Creating 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Created 
+ Volume hitokoto_db-data Created 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 0s]
+$ docker compose logs app 2>&1 | grep -E "つながり|つながりました|Uvicorn running"
+app-1  | INFO:     データベース db につながりました
+app-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+[rc=0 0s]
+$ docker compose logs db 2>&1 | grep -E "ready to accept|init"| head -4
+db-1  | The database cluster will be initialized with locale "en_US.utf8".
+db-1  | performing post-bootstrap initialization ... ok
+db-1  | initdb: warning: enabling "trust" authentication for local connections
+db-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+[rc=0 0s]
+$ grep -A1 depends_on compose.yaml
+    depends_on:
+      - db
+[rc=0 0s]
+$ docker compose down -v
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Volume hitokoto_db-data Removing 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+ Volume hitokoto_db-data Removed 
+[rc=0 1s]
+$ docker compose up -d
+ Network hitokoto_default Creating 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Created 
+ Volume hitokoto_db-data Created 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 1s]
+$ docker compose logs app 2>&1 | grep -E "つながり|つながりました|Uvicorn running"
+app-1  | INFO:     データベース db につながりました
+app-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+[rc=0 0s]
+$ docker compose logs db 2>&1 | grep -E "ready to accept|init"| head -4
+db-1  | The database cluster will be initialized with locale "en_US.utf8".
+db-1  | performing post-bootstrap initialization ... ok
+db-1  | initdb: warning: enabling "trust" authentication for local connections
+db-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+[rc=0 0s]
+$ grep -A1 depends_on compose.yaml
+    depends_on:
+      - db
+[rc=0 0s]
+$ docker compose down -v
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Volume hitokoto_db-data Removing 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+ Volume hitokoto_db-data Removed 
+[rc=0 1s]
+$ docker compose up -d
+ Network hitokoto_default Creating 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Created 
+ Volume hitokoto_db-data Created 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 0s]
+$ docker compose logs app 2>&1 | grep -E "つながり|つながりました|Uvicorn running"
+app-1  | INFO:     データベース db につながりました
+app-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+[rc=0 0s]
+$ docker compose logs db 2>&1 | grep -E "ready to accept|init"| head -4
+db-1  | The database cluster will be initialized with locale "en_US.utf8".
+db-1  | performing post-bootstrap initialization ... ok
+db-1  | initdb: warning: enabling "trust" authentication for local connections
+db-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+[rc=0 0s]
+$ docker compose down -v
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Volume hitokoto_db-data Removing 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+ Volume hitokoto_db-data Removed 
+[rc=0 1s]
+$ docker compose up -d
+ Network hitokoto_default Creating 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Created 
+ Volume hitokoto_db-data Created 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-db-1 Waiting 
+ Container hitokoto-db-1 Healthy 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 3s]
+<p class="lead">みんなのひとことを書き込もう（Compose で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="今日のひとこと（140字まで）" required>
+<li>まだ書き込みはありません</li>
+<footer>hitokoto 1.0</footer>
+$ grep -vE "^\s*$|^#[0-9]+ " /tmp/watch.log | tail -40
+ Image hitokoto-app Building 
+ Image hitokoto-app Built 
+ Container hitokoto-db-1 Running 
+ Container hitokoto-app-1 Running 
+ Container hitokoto-db-1 Waiting 
+ Container hitokoto-db-1 Healthy 
+Watch enabled
+Syncing service "app" after 1 changes were detected
+Syncing service "app" after 1 changes were detected
+ Container hitokoto-app-1 Restarting 
+ Container hitokoto-app-1 Started 
+service(s) ["app"] restarted
+Rebuilding service(s) ["app"] after changes were detected...
+ Image hitokoto-app Building 
+ Image hitokoto-app Built 
+service(s) ["app"] successfully built
+ Container hitokoto-db-1 Running 
+ Container hitokoto-app-1 Recreate 
+ Container hitokoto-app-1 Recreated 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 0s]
+$ curl -s -o /dev/null -w '%{http_code}\n' --data-urlencode 'text=残るかな' localhost:8000/
+303
+[rc=0 0s]
+$ docker compose down
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+[rc=0 1s]
+$ docker compose up -d
+ Network hitokoto_default Creating 
+ Network hitokoto_default Creating 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-db-1 Waiting 
+ Container hitokoto-db-1 Healthy 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 2s]
+<p class="lead">みんなのひとことを書き込もう（Compose で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="今日のひとこと（140字まで）" required>
+<li>残るかな<span class="time">10/01 15:43</span></li>
+<footer>hitokoto 1.0</footer>
+$ docker compose down -v
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Volume hitokoto_db-data Removing 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+ Volume hitokoto_db-data Removed 
+[rc=0 1s]
+$ docker compose up -d
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Creating 
+ Volume hitokoto_db-data Creating 
+ Network hitokoto_default Creating 
+ Volume hitokoto_db-data Created 
+ Volume hitokoto_db-data Created 
+ Network hitokoto_default Created 
+ Network hitokoto_default Created 
+ Container hitokoto-db-1 Creating 
+ Container hitokoto-db-1 Created 
+ Container hitokoto-app-1 Creating 
+ Container hitokoto-app-1 Created 
+ Container hitokoto-db-1 Starting 
+ Container hitokoto-db-1 Started 
+ Container hitokoto-db-1 Waiting 
+ Container hitokoto-db-1 Healthy 
+ Container hitokoto-app-1 Starting 
+ Container hitokoto-app-1 Started 
+[rc=0 3s]
+<p class="lead">みんなのひとことを書き込もう（Compose で動いています）</p>
+<p class="banner db">データベース（db）に保存しています</p>
+<input type="text" name="text" maxlength="140" placeholder="今日のひとこと（140字まで）" required>
+<li>まだ書き込みはありません</li>
+<footer>hitokoto 1.0</footer>
+$ docker compose down -v
+ Container hitokoto-app-1 Stopping 
+ Container hitokoto-app-1 Stopped 
+ Container hitokoto-app-1 Removing 
+ Container hitokoto-app-1 Removed 
+ Container hitokoto-db-1 Stopping 
+ Container hitokoto-db-1 Stopped 
+ Container hitokoto-db-1 Removing 
+ Container hitokoto-db-1 Removed 
+ Volume hitokoto_db-data Removing 
+ Network hitokoto_default Removing 
+ Network hitokoto_default Removed 
+ Volume hitokoto_db-data Removed 
+[rc=0 1s]
+##### end h6 2026-10-01T06:43:21+00:00

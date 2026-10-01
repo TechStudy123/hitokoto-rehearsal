@@ -1,0 +1,3 @@
+hitokoto_1.1 {'LOW': 66, 'HIGH': 55, 'MEDIUM': 86, 'UNKNOWN': 2}
+hitokoto_2.0 {'LOW': 66, 'HIGH': 55, 'MEDIUM': 86, 'UNKNOWN': 2}
+hitokoto_full {'LOW': 1453, 'HIGH': 346, 'MEDIUM': 2245, 'UNKNOWN': 59, 'CRITICAL': 19}
