@@ -8,13 +8,13 @@ from datetime import datetime, timedelta, timezone
 DB_HOST = os.environ["DB_HOST"]  # データベースのコンテナの名前（使わないときは none）
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
 
-from contextlib import asynccontextmanager  # noqa: E402
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Form, Request  # noqa: E402
-from fastapi.responses import RedirectResponse  # noqa: E402
-from fastapi.templating import Jinja2Templates  # noqa: E402
-from sqlalchemy import DateTime, Integer, String, create_engine, select  # noqa: E402
-from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column  # noqa: E402
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy import DateTime, Integer, String, create_engine, select
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 logger = logging.getLogger("uvicorn.error")
 JST = timezone(timedelta(hours=9), "JST")

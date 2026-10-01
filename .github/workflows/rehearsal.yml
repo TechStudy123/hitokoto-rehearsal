@@ -11,6 +11,9 @@ jobs:
   devcontainer:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v7
       - name: devcontainer を起動（Codespaces と同じ設定）
@@ -24,8 +27,10 @@ jobs:
         env:
           DH_USER: ${{ vars.DH_USER }}
           DH_TOKEN: ${{ secrets.DH_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ github.token }}
         run: |
-          devcontainer exec --workspace-folder . --remote-env DH_USER="$DH_USER" --remote-env DH_TOKEN="$DH_TOKEN" bash rehearsal/run.sh ${{ inputs.stages }}
+          devcontainer exec --workspace-folder . --remote-env DH_USER="$DH_USER" --remote-env DH_TOKEN="$DH_TOKEN" --remote-env GHCR_USER="$GHCR_USER" --remote-env GHCR_TOKEN="$GHCR_TOKEN" bash rehearsal/run.sh ${{ inputs.stages }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:

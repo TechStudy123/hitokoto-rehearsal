@@ -3,15 +3,23 @@
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "moby": false
+      "moby": false,
+      "dockerDashComposeVersion": "none"
     }
   },
   "hostRequirements": {
     "cpus": 2
   },
-  "forwardPorts": [8000, 8080],
+  "forwardPorts": [
+    8000,
+    8080
+  ],
   "portsAttributes": {
-    "8000": { "label": "ひとこと掲示板" },
-    "8080": { "label": "Web サーバー（nginx）" }
+    "8000": {
+      "label": "ひとこと掲示板"
+    },
+    "8080": {
+      "label": "Web サーバー（nginx）"
+    }
   }
 }

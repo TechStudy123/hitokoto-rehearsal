@@ -12,7 +12,7 @@ web() { sleep ${2:-4}; curl -s localhost:${1:-8000} | grep -E 'class="(banner|le
 for S in "$@"; do LOG=$OUT/$S.log; : > "$LOG"; log "##### $S $(date -Is)"
 case $S in
 h1)
-  run docker version; run docker compose version; run docker buildx version; run 'docker info | grep -E "Server Version|Storage Driver|driver-type|Cgroup|Operating System|Total Memory|CPUs"'
+  run docker version; run docker compose version; run 'ls -la /usr/libexec/docker/cli-plugins /usr/local/lib/docker/cli-plugins 2>&1; which docker-compose; dpkg -l | grep -E "docker-(ce|compose|buildx)" '; run 'command -v python3 perl'; run docker buildx version; run 'docker info | grep -E "Server Version|Storage Driver|driver-type|Cgroup|Operating System|Total Memory|CPUs"'
   run docker run hello-world
   run "echo wrong-password | docker login -u $DH --password-stdin"
   run "printenv DH_TOKEN | docker login -u $DH --password-stdin"
@@ -59,17 +59,13 @@ h5)
   ;;
 h6)
   stage H6_完成; cp .env.example .env; cp "$R/stages/H5_完成/hitokoto/templates/index.html" templates/
-  run docker compose config -q; run docker compose up -d; run docker compose ps
+  run docker compose config -q; run docker compose up -d; run docker compose ps; sleep 4
   run "curl -s -o /dev/null --data-urlencode 'text=Compose から' localhost:8000/"; web
   cp compose.yaml /tmp/c.yaml
-  python3 - <<'P'
-s=open('compose.yaml').read(); i=s.index("    healthcheck:"); j=s.index("\nvolumes:"); open('compose.yaml','w').write(s[:i]+s[j:])
-P
+  perl -0pi -e 's/    healthcheck:.*?(\nvolumes:)/$1/s' compose.yaml; run 'grep -c healthcheck compose.yaml'
   run docker compose down; run docker compose up -d
   for k in 1 2 3; do
-    cp /tmp/c.yaml compose.yaml; python3 - <<'P'
-s=open('compose.yaml').read(); open('compose.yaml','w').write(s.replace("    depends_on:\n      db:\n        condition: service_healthy\n","    depends_on:\n      - db\n"))
-P
+    cp /tmp/c.yaml compose.yaml; perl -0pi -e 's/    depends_on:\n      db:\n        condition: service_healthy\n/    depends_on:\n      - db\n/' compose.yaml; run 'grep -A1 depends_on compose.yaml'
     run docker compose down -v; run docker compose up -d; sleep 3; run 'docker compose logs app 2>&1 | grep -E "つながり|つながりました|Uvicorn running"'
     run 'docker compose logs db 2>&1 | grep -E "ready to accept|init"| head -4'
   done
@@ -78,8 +74,9 @@ P
   cp "$R/stages/H6_完成/hitokoto/templates/index.html" templates/; web 8000 5
   sed -i 's/title="ひとこと掲示板"/title="ひとこと掲示板 "/' main.py; sleep 10
   sed -i 's/^psycopg/psycopg/' requirements.txt; echo "" >> requirements.txt; sleep 60
-  run 'cat /tmp/watch.log | grep -vE "^\s*$" | tail -25'; pkill -f "compose watch"; sleep 2
-  run docker compose down; run docker compose up -d; web
+  run 'grep -vE "^\s*$|^#[0-9]+ " /tmp/watch.log | tail -40'; pkill -f "compose watch"; sleep 2
+  run "curl -s -o /dev/null -w '%{http_code}\n' --data-urlencode 'text=残るかな' localhost:8000/"
+  run docker compose down; run docker compose up -d; web 8000 6
   run docker compose down -v; run docker compose up -d; web 8000 6; run docker compose down -v
   ;;
 h7)
@@ -91,9 +88,15 @@ h7)
   cp "$R/stages/H7_完成/hitokoto/templates/base.html" templates/
   run docker build -t $DH/$REPO:1.1 .; run docker push $DH/$REPO:1.1
   run docker run -d --name app -p 8000:8000 -e DB_HOST=none $DH/$REPO:1.1; web; run docker rm -f app
-  run docker image inspect $DH/$REPO:1.1 --format "{{json .RepoDigests}}"
-  run docker logout; run docker push $DH/$REPO:1.1
-  run "docker push docker.io/library/hitokoto-rehearsal-test:1.1 2>&1 | tail -2 || true"
+  run "docker image inspect $DH/$REPO:1.1 --format '{{json .RepoDigests}}'"
+  run docker tag $DH/$REPO:1.1 hitokoto:1.1; run docker push hitokoto:1.1
+  run docker tag $DH/$REPO:1.1 someone-else-xyz/hitokoto:1.1; run docker push someone-else-xyz/hitokoto:1.1
+  run docker logout; run docker tag $DH/$REPO:1.1 $DH/$REPO:1.1-logout; run docker push $DH/$REPO:1.1-logout
+  if [ -n "$GHCR_TOKEN" ]; then
+    run "printenv GHCR_TOKEN | docker login ghcr.io -u $GHCR_USER --password-stdin"
+    G=ghcr.io/$(echo $GHCR_USER | tr A-Z a-z)/hitokoto-rehearsal
+    run docker tag $DH/$REPO:1.1 $G:1.1; run docker push $G:1.1; run docker logout ghcr.io
+  fi
   run "printenv DH_TOKEN | docker login -u $DH --password-stdin"
   ;;
 h8)
@@ -111,7 +114,7 @@ h8)
     TO=900 run 'docker scout cves --only-severity critical,high hitokoto:2.0 2>&1 | tail -30'
   fi
   mkdir -p $OUT/../tars; for t in full 1.1 2.0; do docker save hitokoto:$t -o $OUT/../tars/hitokoto_$t.tar; done
-  run 'ls -la $OUT/../tars'
+  run "ls -la $OUT/../tars"
   run docker tag hitokoto:2.0 $DH/$REPO:2.0; run docker push $DH/$REPO:2.0
   ;;
 h9)
