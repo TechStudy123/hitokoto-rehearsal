@@ -1,0 +1,82 @@
+name: rehearsal
+on:
+  workflow_dispatch:
+    inputs:
+      stages:
+        description: 動かす段階（空白区切り）
+        default: "h1 h3 h4 h5 h6 h7 h8 h9"
+permissions:
+  contents: read
+jobs:
+  devcontainer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - name: devcontainer を起動（Codespaces と同じ設定）
+        run: |
+          npm install -g @devcontainers/cli@0
+          devcontainer up --workspace-folder . 2>&1 | tail -5
+      - name: Docker Scout の CLI を入れる
+        run: |
+          devcontainer exec --workspace-folder . bash -c 'mkdir -p ~/.docker/cli-plugins && curl -sSL https://github.com/docker/scout-cli/releases/download/v1.26.0/docker-scout_1.26.0_linux_amd64.tar.gz | tar xz -C ~/.docker/cli-plugins docker-scout && docker scout version | head -3'
+      - name: ハンズオンのコマンドを動かす
+        env:
+          DH_USER: ${{ vars.DH_USER }}
+          DH_TOKEN: ${{ secrets.DH_TOKEN }}
+        run: |
+          devcontainer exec --workspace-folder . --remote-env DH_USER="$DH_USER" --remote-env DH_TOKEN="$DH_TOKEN" bash rehearsal/run.sh ${{ inputs.stages }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: results
+          path: results/
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: tars
+          path: tars/
+          if-no-files-found: ignore
+          retention-days: 1
+
+  trivy:
+    needs: devcontainer
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: tars
+          path: tars
+        continue-on-error: true
+      - name: Trivy でスキャン（秘密を持たないジョブ）
+        run: |
+          mkdir -p results
+          ls tars 2>/dev/null || exit 0
+          for f in tars/*.tar; do
+            n=$(basename $f .tar)
+            docker run --rm -v "$PWD/tars:/tars" aquasec/trivy:0.74.0 image --quiet --input /tars/$n.tar --severity HIGH,CRITICAL --format table > results/trivy_$n.txt 2>&1 || true
+            docker run --rm -v "$PWD/tars:/tars" aquasec/trivy:0.74.0 image --quiet --input /tars/$n.tar --format json 2>/dev/null | python3 -c "import sys,json,collections;d=json.load(sys.stdin);c=collections.Counter(v['Severity'] for r in d.get('Results',[]) for v in (r.get('Vulnerabilities') or []));print('$n',dict(c))" >> results/trivy_summary.txt || true
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: trivy
+          path: results/
+
+  collect:
+    needs: [devcontainer, trivy]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: "{results,trivy}"
+          merge-multiple: true
+          path: out
+      - name: 結果を results ブランチに置く
+        run: |
+          cd out && git init -q -b results && git add -A
+          git -c user.name=rehearsal -c user.email=rehearsal@users.noreply.github.com commit -q -m "results ${{ github.run_id }}"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" results

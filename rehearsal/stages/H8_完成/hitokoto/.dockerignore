@@ -1,0 +1,13 @@
+.git
+.venv
+*.log
+.env
+__pycache__
+tests
+requirements-dev.txt
+.devcontainer
+compose.yaml
+.env.example
+README.md
+Dockerfile
+.dockerignore
